@@ -32,10 +32,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.ErrorHandler;
@@ -43,6 +40,11 @@ import org.xml.sax.ErrorHandler;
 
 class MyParser {
     
+    public Map<String, Item> items = new HashMap<String, Item>();
+    public Map<String, ArrayList<String>> itemCategories = new HashMap<String, ArrayList<String>>();
+    public Map<String, User> users = new HashMap<String, User>();
+    public List<Bid> bids = new ArrayList<Bid>();
+
     static final String columnSeparator = "|*|";
     static DocumentBuilder builder;
     
@@ -183,10 +185,39 @@ class MyParser {
         /* Fill in code here (you will probably need to write auxiliary
             methods). */
         
+        NodeList nList = doc.getDocumentElement().getElementsByTagName("Item");
+        for (int idx = 0; idx < nList.getLength(); idx++) {
+            Node node = nList.item(idx);
+            Element item = (Element) node;
+            insertItem(item);
+            insertCategories(item);
+            insertUser(item);
+            insertBids(item);
+        }
         
         
         /**************************************************************/
         
+    }
+
+    // TODO: fill in insert functions
+    public void insertItem(Element item) {
+        // Get all the attributes
+        // Make a new Item
+        // Set the attributes of the Item
+        // Add to Map
+    }
+
+    public void insertCategories(Element item) {
+
+    }
+
+    public void insertUser(Element item) {
+
+    }
+
+    public void insertBids(Element item) {
+
     }
     
     public static void main (String[] args) {
@@ -217,5 +248,7 @@ class MyParser {
             File currentFile = new File(args[i]);
             processFile(currentFile);
         }
+
+        // TODO: Output Maps to --.dat files
     }
 }

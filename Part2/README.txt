@@ -5,9 +5,7 @@
 
     Item_Category(ItemID, Category) [Key: ItemID, Category]
 
-    Bidders(UID, Location, Country, Bidder_Rating) [Key: UID]
-
-    Sellers(UID, Seller_Rating) [Key: UID]
+    Users(UID, Location, Country, Bidder_Rating, Seller_Rating) [Key: UID]
 
     Bids(ItemID, UID, Time, Amount) [Key: ItemID, UID, Time]
 
