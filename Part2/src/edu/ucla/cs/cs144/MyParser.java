@@ -92,7 +92,7 @@ class MyParser {
         Vector< Element > elements = new Vector< Element >();
         Node child = e.getFirstChild();
         while (child != null) {
-            if (child instanceof Element && child.getN	deName().equals(tagName))
+            if (child instanceof Element && child.getNodeName().equals(tagName))
             {
                 elements.add( (Element)child );
             }
@@ -233,7 +233,7 @@ class MyParser {
     }
 
     static void insertCategories(Element item) {
-        ArrayList<String> categories = new ArrayList();
+        ArrayList<String> categories = new ArrayList<String>();
         NodeList nodes = item.getElementsByTagName("Category");
         for (int i = 0; i < nodes.getLength(); i++) {
             Element e = (Element) nodes.item(i);
@@ -245,10 +245,10 @@ class MyParser {
 
     static void insertUser(Element item) {
 		//getting Bidder information
-		Nodelist bids = getElementByTagNameNR("Bids").getElementsByTagName("Bid");
+		NodeList bids = getElementByTagNameNR(item, "Bids").getElementsByTagName("Bid");
 		
 		
-		for(int i = 0; i < bids.length(); i++){
+		for(int i = 0; i < bids.getLength(); i++){
 			Element iBid = (Element) bids.item(i);
 			Element bidder = getElementByTagNameNR(iBid, "Bidder");
 			String location = getElementTextByTagNameNR(bidder, "Location");
@@ -351,7 +351,7 @@ class MyParser {
             bw = new BufferedWriter(fw);
 
             for (String key : items.keySet()) {
-                String entry = key + "," + items.get(key).toString() + "\n";
+                String entry = key + columnSeparator + items.get(key).toString() + "\n";
                 bw.write(entry);
             }
         } catch (IOException e) {
@@ -377,7 +377,7 @@ class MyParser {
 
             for (String key : itemCategories.keySet()) {
                 for (String category : itemCategories.get(key)) {
-                    String entry = key + "," + category + "\n";
+                    String entry = key + columnSeparator + category + "\n";
                     bw.write(entry);
                 }
             }
@@ -403,7 +403,7 @@ class MyParser {
             bw = new BufferedWriter(fw);
 
             for (String key : users.keySet()) {
-                String entry = key + "," + users.get(key).toString() + "\n";
+                String entry = key + columnSeparator + users.get(key).toString() + "\n";
                 bw.write(entry);
             }
         } catch (IOException e) {

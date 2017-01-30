@@ -88,9 +88,9 @@ class Item {
     }
 
     public String toString() { 
-        return name + "," + currently + "," + buyPrice + "," + firstBid + "," +
-               numBids + "," + latitude + "," + longitude + "," + location + "," +
-               country + "," + started + "," + ends + "," + seller + "," + description;
+        return name + "|*|" + currently + "|*|" + buyPrice + "|*|" + firstBid + "|*|" +
+               numBids + "|*|" + latitude + "|*|" + longitude + "|*|" + location + "|*|" +
+               country + "|*|" + started + "|*|" + ends + "|*|" + seller + "|*|" + description;
     } 
 }
 
@@ -125,7 +125,7 @@ class Bid {
     }
 
     public String toString() {
-        return itemID + "," + userID + "," + time + "," + amount;
+        return itemID + "|*|" + userID + "|*|" + time + "|*|" + amount;
     }
 }
 
@@ -153,6 +153,6 @@ class User {
     }
 
     public String toString() {
-        return location + "," + country + "," + bidderRating + "," + sellerRating;
+        return location + "|*|" + country + "|*|" + bidderRating + "|*|" + sellerRating;
     }
 }
