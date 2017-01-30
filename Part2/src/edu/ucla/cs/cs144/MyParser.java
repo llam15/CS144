@@ -92,7 +92,7 @@ class MyParser {
         Vector< Element > elements = new Vector< Element >();
         Node child = e.getFirstChild();
         while (child != null) {
-            if (child instanceof Element && child.getNodeName().equals(tagName))
+            if (child instanceof Element && child.getN	deName().equals(tagName))
             {
                 elements.add( (Element)child );
             }
@@ -245,38 +245,43 @@ class MyParser {
 
     static void insertUser(Element item) {
 		//getting Bidder information
-		Element bids = getElementByTagNameNR(item, "Bids");
-		Element bid = getElementByTagNameNR(bids, "Bid");
-		Element bidder = getElementByTagNameNR(bid, "Bidder");
-		String location = getElementTextByTagNameNR(bidder, "Location");
-		String bidderCountry = getElementTextByTagNameNR(bidder, "Country");
-		String bidderID = bidder.getAttribute("UserID");
-		String bidderRating = bidder.getAttribute("Rating");
+		Nodelist bids = getElementByTagNameNR("Bids").getElementsByTagName("Bid");
 		
-		//get Seller information
-		Element seller = getElementByTagNameNR(item, "Seller");
-		String sellerID = seller.getAttribute("UserID");
-		String sellerRating = seller.getAttribute("Rating");
-	
 		
-		//add users who haven't placed a bid before
-		if(!users.containsKey(bidderID)){
-			User bUser = new User();
+		for(int i = 0; i < bids.length(); i++){
+			Element iBid = (Element) bids.item(i);
+			Element bidder = getElementByTagNameNR(iBid, "Bidder");
+			String location = getElementTextByTagNameNR(bidder, "Location");
+			String bidderCountry = getElementTextByTagNameNR(bidder, "Country");
+			String bidderID = bidder.getAttribute("UserID");
+			String bidderRating = bidder.getAttribute("Rating");
+			
+			//add users who haven't placed a bid before
+			if(!users.containsKey(bidderID)){
+				User bUser = new User();
 			if(!location.isEmpty())
 				bUser.setLocation(location);
 			if(!bidderCountry.isEmpty())
 				bUser.setCountry(bidderCountry);
 			bUser.setBidderRating(bidder.getAttribute("Rating"));
 			users.put(bidderID, bUser);
-		}
-		//seller has become a bidder -> fill in bidder information
-		else{
-			if(users.get(bidderID).bidderRating != null){
-				users.get(bidderID).setLocation(getElementTextByTagNameNR(bidder, "Location"));
-				users.get(bidderID).setCountry(getElementTextByTagNameNR(bidder, "Country"));
-				users.get(bidderID).setBidderRating(bidder.getAttribute("Rating"));
+			}
+			//seller has become a bidder -> fill in bidder information
+			else{
+				if(users.get(bidderID).bidderRating != null){
+					users.get(bidderID).setLocation(getElementTextByTagNameNR(bidder, "Location"));
+					users.get(bidderID).setCountry(getElementTextByTagNameNR(bidder, "Country"));
+					users.get(bidderID).setBidderRating(bidder.getAttribute("Rating"));
+				}
 			}
 		}
+		
+		//get Seller information
+		Element seller = getElementByTagNameNR(item, "Seller");
+		String sellerID = seller.getAttribute("UserID");
+		String sellerRating = seller.getAttribute("Rating");
+	
+
 		
 		//add users who haven't sold a product before
 		if(!users.containsKey(sellerID)){
