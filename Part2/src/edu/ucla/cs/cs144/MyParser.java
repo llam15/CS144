@@ -212,8 +212,54 @@ class MyParser {
 
     }
 
-    public void insertUser(Element item) {
-
+    static void insertUser(Element item) {
+		//getting Bidder information
+		Element bids = item.getElementByTagNameNR(item, "Bids");
+		Element bid = bids.getElementByTagNameNR(bids, "Bid");
+		Element bidder = bid.getElementByTagNameNR(bid, "Bidder");
+		Element country = item.getElementByTagNameNR(item, "Country");
+		String location = bidder.getElementTextByTagNameNR(bidder, "Location");
+		String country = bidder.getElementTextByTagNameNR(bidder, "Country");
+		String bidderiID = bidder.getAttribute("UserID");
+		String bidderRating = bidder.getAttribute("Rating");
+		
+		//get Seller information
+		Element seller = item.getElementByTagNameNR(item, "Seller");
+		String sellerID = seller.getAttribute("UserID");
+		String sellerRating = seller.getAttribute("Rating");
+	
+		
+		//add users who haven't placed a bid before
+		if(!users.contains(bidderID)){
+			User bUser = new User();
+			if(!location.isEmpty())
+				bUser.setLocation(location);
+			if(!country.isEmpty())
+				bUser.setCountry(country);
+			bUser.setBidderRating(bidder.getAttribute("Rating"));
+			users.put(bidderID, bUser);
+		}
+		//seller has become a bidder -> fill in bidder information
+		else{
+			if(users.get(bidderID).bidderRating != null){
+				users.get(bidderID).setLocation(bidder.getElementTextByTagNameNR(bidder, "Location"));
+				users.get(bidderID).setCountry(bidder.getElementTextByTagNameNR(bidder, "Country"));
+				users.get(bidderID).setBidderRating(bidder.getAttribute("Rating"));
+			}
+		}
+		
+		//add users who haven't sold a product before
+		if(!users.contains(sellerID)){
+			User sUser = new User();
+			sUser.setSellerRating(sellerRating);
+			users.put(sellerID, sUser);
+		}
+		//bidder who has become a seller -> fill in seller rating
+		else{
+			if(users.get(sellerID).sellerRating != null)
+				users.get(sellerID).sellerRating = sellerRating;
+		}
+		
     }
 
     public void insertBids(Element item) {
