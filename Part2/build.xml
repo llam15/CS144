@@ -17,6 +17,11 @@
 
     <target name="clean">
         <delete dir="${obj-dir}"/>
+        <delete>
+            <fileset dir=".">
+                <include name="*.dat"/>
+            </fileset>
+        </delete>
     </target>
 
     <!-- compile parser code -->

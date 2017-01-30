@@ -40,10 +40,10 @@ import org.xml.sax.ErrorHandler;
 
 class MyParser {
     
-    public Map<String, Item> items = new HashMap<String, Item>();
-    public Map<String, ArrayList<String>> itemCategories = new HashMap<String, ArrayList<String>>();
-    public Map<String, User> users = new HashMap<String, User>();
-    public List<Bid> bids = new ArrayList<Bid>();
+    public static Map<String, Item> items = new HashMap<String, Item>();
+    public static Map<String, ArrayList<String>> itemCategories = new HashMap<String, ArrayList<String>>();
+    public static Map<String, User> users = new HashMap<String, User>();
+    public static List<Bid> bids = new ArrayList<Bid>();
 
     static final String columnSeparator = "|*|";
     static DocumentBuilder builder;
@@ -200,56 +200,86 @@ class MyParser {
         
     }
 
-    // TODO: fill in insert functions
-    public void insertItem(Element item) {
-        // Get all the attributes
-        // Make a new Item
-        // Set the attributes of the Item
-        // Add to Map
+    static void insertItem(Element item) {
+        Item i = new Item();
+        String buyPrice = getElementTextByTagNameNR(item, "Buy_Price");
+        Element location = getElementByTagNameNR(item, "Location");
+        String latitude = location.getAttribute("Latitude");
+        String longitude = location.getAttribute("Longitude");
+        String uid = getElementByTagNameNR(item, "Seller").getAttribute("UserID");
+
+        i.setName(getElementTextByTagNameNR(item, "Name"));
+        i.setCurrently(strip(getElementTextByTagNameNR(item, "Currently")));
+        i.setFirstBid(strip(getElementTextByTagNameNR(item, "First_Bid")));
+        i.setNumBids(getElementTextByTagNameNR(item, "Number_of_Bids"));
+        i.setLocation(getElementText(location));
+        i.setCountry(getElementTextByTagNameNR(item, "Country"));
+        i.setStarted(getElementTextByTagNameNR(item, "Started"));
+        i.setEnds(getElementTextByTagNameNR(item, "Ends"));
+        i.setSeller(uid);
+        i.setDescription(getElementTextByTagNameNR(item, "Description"));
+
+        if (!buyPrice.isEmpty()) {
+            i.setBuyPrice(strip(buyPrice));
+        }
+        if (!latitude.isEmpty()) {
+            i.setLatitude(latitude);
+        }
+        if (!longitude.isEmpty()) {
+            i.setLongitude(longitude);
+        }
+
+        items.put(item.getAttribute("ItemID"), i);
     }
 
-    public void insertCategories(Element item) {
+    static void insertCategories(Element item) {
+        ArrayList<String> categories = new ArrayList();
+        NodeList nodes = item.getElementsByTagName("Category");
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Element e = (Element) nodes.item(i);
+            categories.add(getElementText(e));
+        }
 
+        itemCategories.put(item.getAttribute("ItemID"), categories);
     }
 
     static void insertUser(Element item) {
 		//getting Bidder information
-		Element bids = item.getElementByTagNameNR(item, "Bids");
-		Element bid = bids.getElementByTagNameNR(bids, "Bid");
-		Element bidder = bid.getElementByTagNameNR(bid, "Bidder");
-		Element country = item.getElementByTagNameNR(item, "Country");
-		String location = bidder.getElementTextByTagNameNR(bidder, "Location");
-		String country = bidder.getElementTextByTagNameNR(bidder, "Country");
-		String bidderiID = bidder.getAttribute("UserID");
+		Element bids = getElementByTagNameNR(item, "Bids");
+		Element bid = getElementByTagNameNR(bids, "Bid");
+		Element bidder = getElementByTagNameNR(bid, "Bidder");
+		String location = getElementTextByTagNameNR(bidder, "Location");
+		String bidderCountry = getElementTextByTagNameNR(bidder, "Country");
+		String bidderID = bidder.getAttribute("UserID");
 		String bidderRating = bidder.getAttribute("Rating");
 		
 		//get Seller information
-		Element seller = item.getElementByTagNameNR(item, "Seller");
+		Element seller = getElementByTagNameNR(item, "Seller");
 		String sellerID = seller.getAttribute("UserID");
 		String sellerRating = seller.getAttribute("Rating");
 	
 		
 		//add users who haven't placed a bid before
-		if(!users.contains(bidderID)){
+		if(!users.containsKey(bidderID)){
 			User bUser = new User();
 			if(!location.isEmpty())
 				bUser.setLocation(location);
-			if(!country.isEmpty())
-				bUser.setCountry(country);
+			if(!bidderCountry.isEmpty())
+				bUser.setCountry(bidderCountry);
 			bUser.setBidderRating(bidder.getAttribute("Rating"));
 			users.put(bidderID, bUser);
 		}
 		//seller has become a bidder -> fill in bidder information
 		else{
 			if(users.get(bidderID).bidderRating != null){
-				users.get(bidderID).setLocation(bidder.getElementTextByTagNameNR(bidder, "Location"));
-				users.get(bidderID).setCountry(bidder.getElementTextByTagNameNR(bidder, "Country"));
+				users.get(bidderID).setLocation(getElementTextByTagNameNR(bidder, "Location"));
+				users.get(bidderID).setCountry(getElementTextByTagNameNR(bidder, "Country"));
 				users.get(bidderID).setBidderRating(bidder.getAttribute("Rating"));
 			}
 		}
 		
 		//add users who haven't sold a product before
-		if(!users.contains(sellerID)){
+		if(!users.containsKey(sellerID)){
 			User sUser = new User();
 			sUser.setSellerRating(sellerRating);
 			users.put(sellerID, sUser);
@@ -259,11 +289,22 @@ class MyParser {
 			if(users.get(sellerID).sellerRating != null)
 				users.get(sellerID).sellerRating = sellerRating;
 		}
-		
     }
 
-    public void insertBids(Element item) {
+    static void insertBids(Element item) {
+        NodeList itemBids = getElementByTagNameNR(item, "Bids").getElementsByTagName("Bid");
+        for (int i = 0; i < itemBids.getLength(); i++) {
+            Element iBid = (Element) itemBids.item(i);
+            String uid = getElementByTagNameNR(iBid, "Bidder").getAttribute("UserID");
 
+            Bid b = new Bid();
+            b.setItemID(item.getAttribute("ItemID"));
+            b.setUID(uid);
+            b.setTime(getElementTextByTagNameNR(iBid, "Time"));
+            b.setAmount(strip(getElementTextByTagNameNR(iBid, "Amount")));
+
+            bids.add(b);
+        }
     }
     
     public static void main (String[] args) {
@@ -295,6 +336,110 @@ class MyParser {
             processFile(currentFile);
         }
 
-        // TODO: Output Maps to --.dat files
+        // Begin dat file output
+        BufferedWriter bw = null;
+        FileWriter fw = null;
+
+        // Output items.dat
+        try {
+            fw = new FileWriter("items.dat");
+            bw = new BufferedWriter(fw);
+
+            for (String key : items.keySet()) {
+                String entry = key + "," + items.get(key).toString() + "\n";
+                bw.write(entry);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bw != null) {
+                    bw.close();
+                }
+
+                if (fw != null) {
+                    fw.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Output item_category.dat
+        try {
+            fw = new FileWriter("item_category.dat");
+            bw = new BufferedWriter(fw);
+
+            for (String key : itemCategories.keySet()) {
+                for (String category : itemCategories.get(key)) {
+                    String entry = key + "," + category + "\n";
+                    bw.write(entry);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bw != null) {
+                    bw.close();
+                }
+
+                if (fw != null) {
+                    fw.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Output users.dat
+        try {
+            fw = new FileWriter("users.dat");
+            bw = new BufferedWriter(fw);
+
+            for (String key : users.keySet()) {
+                String entry = key + "," + users.get(key).toString() + "\n";
+                bw.write(entry);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bw != null) {
+                    bw.close();
+                }
+
+                if (fw != null) {
+                    fw.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Output bids.dat
+        try {
+            fw = new FileWriter("bids.dat");
+            bw = new BufferedWriter(fw);
+
+            for (Bid b : bids) {
+                String entry = b.toString();
+                bw.write(entry);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bw != null) {
+                    bw.close();
+                }
+
+                if (fw != null) {
+                    fw.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
