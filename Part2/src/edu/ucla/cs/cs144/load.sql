@@ -1,0 +1,11 @@
+LOAD DATA LOCAL INFILE '~/project2/items.dat' INTO TABLE Items
+FIELDS TERMINATED BY '|*|';
+
+LOAD DATA LOCAL INFILE '~/project2/item_category.dat' INTO TABLE Item_Category
+FIELDS TERMINATED BY '|*|';
+
+LOAD DATA LOCAL INFILE '~/project2/users.dat' INTO TABLE Users
+FIELDS TERMINATED BY '|*|';
+
+LOAD DATA LOCAL INFILE '~/project2/bids.dat' INTO TABLE Bids
+FIELDS TERMINATED BY '|*|';
