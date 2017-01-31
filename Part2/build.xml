@@ -17,6 +17,11 @@
 
     <target name="clean">
         <delete dir="${obj-dir}"/>
+        <delete>
+            <fileset dir=".">
+                <include name="*.dat"/>
+            </fileset>
+        </delete>
     </target>
 
     <!-- compile parser code -->
@@ -32,6 +37,14 @@
         <java classname="edu.ucla.cs.cs144.MyParser" failonerror="true" fork="yes">
             <classpath refid="classpath"/>
             <arg value="${env.EBAY_DATA}/items-0.xml" />
+        </java>
+    </target>    
+
+    <!-- run MyParser on $EBAY_DATA/items-0.xml -->
+    <target name="run-short" depends="compile">
+        <java classname="edu.ucla.cs.cs144.MyParser" failonerror="true" fork="yes">
+            <classpath refid="classpath"/>
+            <arg value="${env.EBAY_DATA}/short.xml" />
         </java>
     </target>
 
