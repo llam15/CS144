@@ -18,6 +18,22 @@ class Item {
     String ends;
     String seller;
     String description;
+	
+	public Item(){
+		name = "\\N";
+		currently = "\\N";
+		buyPrice = "\\N";
+		firstBid = "\\N";
+		numBids = "\\N";
+		latitude = "\\N";
+		longitude = "\\N";
+		location = "\\N";
+		country = "\\N";
+		started = "\\N";
+		ends = "\\N";
+		seller = "\\N";
+		description = "\\N";
+	}
 
     void setName(String _name) {
         name = _name;
@@ -99,6 +115,13 @@ class Bid {
     String userID;
     String time;
     String amount;
+	
+	public Bid(){
+		itemID = "\\N";
+		userID = "\\N";
+		time = "\\N";
+		amount = "\\N";
+	}
 
     void setItemID(String _itemID) {
         itemID = _itemID;
@@ -134,6 +157,13 @@ class User {
     String country;
     String bidderRating;
     String sellerRating;
+	
+	public User(){
+		location = "\\N"; 
+		country = "\\N";
+		bidderRating = "\\N";
+		sellerRating = "\\N";
+	}
 
 
     void setLocation(String _location) {
