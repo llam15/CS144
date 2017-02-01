@@ -22,10 +22,7 @@ SELECT item_id
 FROM Items
 WHERE num_bids>0 
 	AND ends>'2001-12-20 00:00:01' 
-	AND currently=(SELECT MAX(currently) 
-					FROM Items 
-					WHERE ends>'2001-12-20 00:00:01' 
-						AND num_bids>0);
+	AND currently=(SELECT MAX(currently) FROM Items WHERE ends>'2001-12-20 00:00:01' AND num_bids>0);
 
 -- Find the number of sellers whose rating is higher than 1000.
 SELECT COUNT(*)
