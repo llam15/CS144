@@ -428,7 +428,7 @@ class MyParser {
             bw = new BufferedWriter(fw);
 
             for (Bid b : bids) {
-                String entry = b.toString();
+                String entry = b.toString() + "\n";
                 bw.write(entry);
             }
         } catch (IOException e) {
