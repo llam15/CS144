@@ -32,8 +32,10 @@ public class Indexer {
 
     public IndexWriter getIndexWriter(boolean create) throws IOException {
         if (indexWriter == null) {
+            IndexWriterConfig.OpenMode mode = create ? IndexWriterConfig.OpenMode.CREATE : IndexWriterConfig.OpenMode.APPEND;
             Directory indexDir = FSDirectory.open(new File("/var/lib/lucene/index1"));
             IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_2, new StandardAnalyzer());
+            config.setOpenMode(mode);
             indexWriter = new IndexWriter(indexDir, config);
         }
         return indexWriter;
@@ -105,7 +107,7 @@ public class Indexer {
 
             // New Item
             Document doc = new Document();
-            doc.add(new StringField("id", id, Field.Store.YES));
+            doc.add(new StringField("item_id", id, Field.Store.YES));
             doc.add(new StringField("name", name, Field.Store.YES));
 
             String fullSearchableText = id + " " + name + " " + description + " " + categories;
