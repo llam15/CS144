@@ -261,7 +261,7 @@ public class AuctionSearch implements IAuctionSearch {
                     String bid_time = escapeXML(getXMLDate(bids.getString("time")));
                     String bid_amount = escapeXML(bids.getString("amount"));
                     itemXML += "<Bid>\n";
-                    itemXML += "<Bidder Rating=" + rating + " UserID=" +  bidder +">\n";
+                    itemXML += "<Bidder Rating=\"" + rating + "\" UserID=\"" +  bidder +"\">\n";
                     itemXML += "<Location>" + bidder_location + "</Location>\n";
                     itemXML += "<Country>" + bidder_country + "</Country>\n";
                     itemXML += "<Time>" + bid_time + "</Time>\n";

@@ -31,6 +31,11 @@ public class AuctionSearchTest {
 		System.out.println("Basic Search Query: " + query);
 		System.out.println("Received " + basicResults.length + " results");
 
+		query = "camera";
+		basicResults = as.basicSearch(query, 0, 1000);
+		System.out.println("Basic Search Query: " + query);
+		System.out.println("Received " + basicResults.length + " results");
+
 		// for(SearchResult result : basicResults) {
 		// 	System.out.println(result.getItemId() + ": " + result.getName());
 		// }
@@ -50,6 +55,11 @@ public class AuctionSearchTest {
 		System.out.println(item);
 
 		itemId = "1043608482";
+		item = as.getXMLDataForItemId(itemId);
+		System.out.println("XML data for ItemId: " + itemId);
+		System.out.println(item);
+
+		itemId = "1043749860";
 		item = as.getXMLDataForItemId(itemId);
 		System.out.println("XML data for ItemId: " + itemId);
 		System.out.println(item);
