@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -153,9 +154,181 @@ public class AuctionSearch implements IAuctionSearch {
 	}
 
 	public String getXMLDataForItemId(String itemId) {
-		// TODO: Your code here!
+        Connection conn = null;
+
+        // create a connection to the database to retrieve Items from MySQL
+        try {
+            conn = DbManager.getConnection(true);
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+
+        try {
+            // Index all items
+            Statement stmt = conn.createStatement();
+
+            // Prepared Statement to select item categories
+            PreparedStatement itemQuery = conn.prepareStatement(
+                "SELECT Items.*, Users.seller_rating " +
+                "FROM Items " +
+                "LEFT JOIN Users ON Items.seller_name = Users.uid " +
+                "WHERE item_id = ?"
+            );
+
+            // Get item
+            itemQuery.setString(1, itemId);
+            ResultSet item = itemQuery.executeQuery();
+
+            if (item.next()) {
+                // Prepared Statement to select item categories
+                PreparedStatement categoriesQuery = conn.prepareStatement("SELECT category FROM Item_Category WHERE item_id = ?");
+
+                // Prepared Statement to select item bids
+                PreparedStatement bidsQuery = conn.prepareStatement(
+                    "SELECT Bids.*, Users.location, Users.country, Users.bidder_rating " +
+                    "FROM Bids " +
+                    "JOIN Users " +
+                    "ON Bids.uid = Users.uid " +
+                    "WHERE item_id = ? " +
+                    "ORDER BY Bids.time ASC"
+                );
+
+                // Get item categories
+                categoriesQuery.setString(1, itemId);
+                ResultSet categoryResults = categoriesQuery.executeQuery();
+
+                // Get item bids
+                bidsQuery.setString(1, itemId);
+                ResultSet bidResults = bidsQuery.executeQuery();
+
+                return generateItemXML(item, categoryResults, bidResults);
+            }
+
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+        // close the database connection
+        try {
+            conn.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+
 		return "";
 	}
+
+    private String generateItemXML(ResultSet item, ResultSet categories, ResultSet bids) {
+        String itemXML = "";
+        try {
+            String item_id = item.getString("item_id");
+            String name = escapeXML(item.getString("name"));
+            String currently = item.getString("currently");
+            String buy_price = item.getString("buy_price");
+            String first_bid = item.getString("first_bid");
+            int num_bids = item.getInt("num_bids");
+            String latitude = item.getString("latitude");
+            String longitude = item.getString("longitude");
+            String location = escapeXML(item.getString("location"));
+            String country = escapeXML(item.getString("country"));
+            String started = getXMLDate(item.getString("started"));
+            String ends = getXMLDate(item.getString("ends"));
+            String seller_name = escapeXML(item.getString("seller_name"));
+            String seller_rating = item.getString("seller_rating");
+            String description = escapeXML(item.getString("description"));
+
+            itemXML += "<Item ItemID=\"" + item_id + "\">\n";
+            itemXML += "<Name>" + name + "</Name>\n";
+
+            while (categories.next()) {
+                itemXML += "<Category>" + escapeXML(categories.getString("category")) + "</Category>\n";
+            }
+
+            itemXML += "<Currently>$" + currently + "</Currently>\n";
+
+            if (buy_price != null) {
+                itemXML += "<Buy_Price>$" + buy_price + "</Buy_Price>\n";
+            }
+
+            itemXML += "<First_Bid>$" + first_bid + "<First_Bid>\n";
+            itemXML += "<Number_of_Bids>" + num_bids + "<Number_of_Bids>\n";
+
+            if (num_bids != 0) {
+                itemXML += "<Bids>\n";
+                while (bids.next()) {
+                    String rating = bids.getString("bidder_rating");
+                    String bidder = escapeXML(bids.getString("uid"));
+                    String bidder_location = escapeXML(bids.getString("location"));
+                    String bidder_country = escapeXML(bids.getString("country"));
+                    String bid_time = escapeXML(getXMLDate(bids.getString("time")));
+                    String bid_amount = escapeXML(bids.getString("amount"));
+                    itemXML += "<Bid>\n";
+                    itemXML += "<Bidder Rating=\"" + rating + "\" UserID=\"" +  bidder +"\">\n";
+                    itemXML += "<Location>" + bidder_location + "</Location>\n";
+                    itemXML += "<Country>" + bidder_country + "</Country>\n";
+                    itemXML += "<Time>" + bid_time + "</Time>\n";
+                    itemXML += "<Amount>$" + bid_amount + "</Amount>\n";
+                    itemXML+= "</Bid>\n";
+                }
+                itemXML += "</Bids>\n";
+            } else {
+                itemXML += "<Bids />\n";
+            }
+
+
+            if (latitude != null && longitude != null) {
+                itemXML += "<Location Latitude=\"" + latitude + "\" Longitude=\"" + longitude + "\">" + location +"</Location>\n";
+            } else {
+                itemXML += "<Location>" + location +"</Location>\n";
+            }
+
+            itemXML += "<Country>" + country +"</Country>\n";
+            itemXML += "<Started>" + started +"</Started>\n";
+            itemXML += "<Ends>" + ends +"</Ends>\n";
+            itemXML += "<Seller Rating=\"" + seller_rating + "\" UserID=\"" + seller_name +"\" />\n";
+            itemXML += "<Ends>" + ends +"</Ends>\n";
+            if (description != null && !description.isEmpty()) {
+                itemXML += "<Description>" + description + "</Description>\n";
+            } else {
+                itemXML += "<Description />\n";
+            }
+            itemXML += "</Item>";
+
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+        return itemXML;
+    }
+
+    private String escapeXML(String raw) {
+        if (raw == null || raw.isEmpty()) {
+            return raw;
+        }
+
+        String escaped = raw.replaceAll("<", "&lt;");
+        escaped = escaped.replaceAll(">", "&gt;");
+        escaped = escaped.replaceAll("&", "&amp;");
+        escaped = escaped.replaceAll("\"", "&quot;");
+        escaped = escaped.replaceAll("'", "&apos;");
+
+        return escaped;
+    }
+
+    private String getXMLDate(String date) {
+        String XMLDate = "";
+
+        SimpleDateFormat input_sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat output_sdf = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
+
+        try {
+            Date timestamp = input_sdf.parse(date);
+            XMLDate = output_sdf.format(timestamp).toString();
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+        return XMLDate;
+    }
 	
 	public String echo(String message) {
 		return message;

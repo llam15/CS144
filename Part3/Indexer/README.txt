@@ -1,6 +1,5 @@
-This example contains a simple utility class to simplify opening database
-connections in Java applications, such as the one you will write to build
-your Lucene index. 
-
-To build and run the sample code, use the "run" ant target inside
-the directory with build.xml by typing "ant run".
+We created the indexes: item_id, name, and content. Item_id and name are
+StringField indexes on the item_id and item name. These are stored because
+they will be returned when queried. The content index is a TextField index
+that consists of the union of item_id, name, description, and item categories.
+This is not stored, because it is only used for queries and is not returned.
