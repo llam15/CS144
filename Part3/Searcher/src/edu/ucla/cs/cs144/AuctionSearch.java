@@ -270,7 +270,7 @@ public class AuctionSearch implements IAuctionSearch {
                 }
                 itemXML += "</Bids>\n";
             } else {
-                itemXML += "<Bids />";
+                itemXML += "<Bids />\n";
             }
 
 
