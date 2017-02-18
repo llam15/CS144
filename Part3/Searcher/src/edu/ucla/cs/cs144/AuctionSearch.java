@@ -71,7 +71,7 @@ public class AuctionSearch implements IAuctionSearch {
                 String itemId = doc.get("item_id");
                 String name = doc.get("name");
 
-                results[i] = new SearchResult(itemId, name);
+                results[i-numResultsToSkip] = new SearchResult(itemId, name);
             }
 
             return results;
@@ -111,12 +111,11 @@ public class AuctionSearch implements IAuctionSearch {
 					prepareIncludedRegion.setString(1, basicQueryResult[i].getItemId());
 					ResultSet rs = prepareIncludedRegion.executeQuery();
 					if (rs.next() && rs.getBoolean("inRange")) {
-						SearchResult r = new SearchResult(rs.getString("item_id"), rs.getString("name"));
 						if(added < numResultsToReturn){
 							if(skipped < numResultsToSkip)
 								skipped++;
 							else{
-								spatialResults.add(r);
+								spatialResults.add(basicQueryResult[i]);
 								added++;
 							}
 						}

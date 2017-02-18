@@ -8,12 +8,12 @@
 
 -- use POINT() function in MySQL to covert a pair of numberic values to a POINT
 
-CREATE TABLE Location(
+CREATE TABLE IF NOT EXISTS Location(
 	item_id INT NOT NULL,
 	lat_long POINT NOT NULL,
 	SPATIAL INDEX (lat_long),
 	FOREIGN KEY (item_id) REFERENCES Items(item_id),
-	PRIMARY KEY (item_id),
+	PRIMARY KEY (item_id)
 ) ENGINE=MyISAM;
 
 INSERT INTO Location 
