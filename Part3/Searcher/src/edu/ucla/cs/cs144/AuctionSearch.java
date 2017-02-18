@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.PreparedStatement;
 import java.sql.Statement;
 
 import org.apache.lucene.document.Document;
@@ -104,12 +105,12 @@ public class AuctionSearch implements IAuctionSearch {
 			String rectangle = getPolygon(region.getLx(), region.getLy(), region.getRx(), region.getRy());
 			
 			PreparedStatement prepareIncludedRegion = conn.prepareStatement("SELECT MBRContains(GeomFromText(" + rectangle + "), lat_long) AS inRange FROM Location WHERE item_id = ?");
-			
+						
 			while(added < numResultsToReturn && basicQueryResult.length > 0){
 				for(int i = 0; i < basicQueryResult.length; i++){
-					prepareIncludedRegion.setInt(1, basicQueryResult[i].getItemId());
+					prepareIncludedRegion.setString(1, basicQueryResult[i].getItemId());
 					ResultSet rs = prepareIncludedRegion.executeQuery();
-					if (rs.next() && rs.getBoolean("inRange") {
+					if (rs.next() && rs.getBoolean("inRange")) {
 						SearchResult r = new SearchResult(rs.getString("item_id"), rs.getString("name"));
 						if(added < numResultsToReturn){
 							if(skipped < numResultsToSkip)
@@ -122,6 +123,7 @@ public class AuctionSearch implements IAuctionSearch {
 						else 
 							break;
 					}
+					rs.close();
 				}
 				//run through basic query again to get more results
 				if(added < numResultsToReturn){
@@ -130,13 +132,13 @@ public class AuctionSearch implements IAuctionSearch {
 				}
 			}
 			//close all connections
-			rs.close();
+			prepareIncludedRegion.close();
 			conn.close();
 			
 			SearchResult[] results = new SearchResult[added];
 			
 			for(int j = 0; j < added; j++){
-				results[i] = spatialResults.get(i);
+				results[j] = spatialResults.get(j);
 			}
 			
 			return results;
