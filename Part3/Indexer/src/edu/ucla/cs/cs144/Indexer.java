@@ -48,7 +48,6 @@ public class Indexer {
     }
  
     public void rebuildIndexes() {
-
         Connection conn = null;
 
         // create a connection to the database to retrieve Items from MySQL
@@ -77,7 +76,6 @@ public class Indexer {
             System.out.println(ex);
         }
 
-
         // close the database connection
     	try {
     	    conn.close();
@@ -86,7 +84,7 @@ public class Indexer {
     	}
     }    
 
-    public void indexItem(ResultSet item, PreparedStatement categoriesQuery) {
+    private void indexItem(ResultSet item, PreparedStatement categoriesQuery) {
         try {
             // Get Item attributes
             String id = item.getString("item_id");
