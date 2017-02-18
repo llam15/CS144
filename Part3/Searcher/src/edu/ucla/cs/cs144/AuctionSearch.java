@@ -91,7 +91,7 @@ public class AuctionSearch implements IAuctionSearch {
 		
 		SearchResult[] basicQueryResult = basicSearch(query, 0, numResultsToReturn);
 		ArrayList<SearchResult> spatialResults = new ArrayList<SearchResult>();
-		Connection con = null;
+		Connection conn = null;
 		int start = 0;
 		int added = 0;
 		int skipped = 0;
@@ -99,11 +99,11 @@ public class AuctionSearch implements IAuctionSearch {
 		
 		try {
     	    conn = DbManager.getConnection(true);
-			Statement stmt = con.createStatement();
+			Statement stmt = conn.createStatement();
 			
 			String rectangle = getPolygon(region.getLx(), region.getLy(), region.getRx(), region.getRy());
 			
-			PreparedStatement prepareIncludedRegion = con.prepareStatement("SELECT MBRContains(GeomFromText(" + rectangle + "), lat_long) AS inRange FROM Location WHERE item_id = ?");
+			PreparedStatement prepareIncludedRegion = conn.prepareStatement("SELECT MBRContains(GeomFromText(" + rectangle + "), lat_long) AS inRange FROM Location WHERE item_id = ?");
 			
 			while(added < numResultsToReturn && basicQueryResult.length > 0){
 				for(int i = 0; i < basicQueryResult.length; i++){
@@ -131,7 +131,7 @@ public class AuctionSearch implements IAuctionSearch {
 			}
 			//close all connections
 			rs.close();
-			con.close();
+			conn.close();
 			
 			SearchResult[] results = new SearchResult[added];
 			
