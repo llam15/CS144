@@ -35,4 +35,11 @@
             <classpath refid="classpath"/>
         </java>
     </target>
+	
+	<target name="index_run" depends="compile">
+        <java classname="edu.ucla.cs.cs144.Indexer" failonerror="true" fork="yes">
+            <classpath refid="classpath"/>
+        </java>
+    </target>
+	
 </project>

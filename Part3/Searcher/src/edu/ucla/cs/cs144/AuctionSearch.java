@@ -60,7 +60,7 @@ public class AuctionSearch implements IAuctionSearch {
 
             // obtain the ScoreDoc (= documentID, relevanceScore) array from topDocs
             ScoreDoc[] hits = topDocs.scoreDocs;
-
+			
             int total = hits.length < numResultsToSkip ? 0 : hits.length - numResultsToSkip;
             SearchResult[] results = new SearchResult[total];
 
@@ -84,6 +84,68 @@ public class AuctionSearch implements IAuctionSearch {
 	public SearchResult[] spatialSearch(String query, SearchRegion region,
 			int numResultsToSkip, int numResultsToReturn) {
 		// TODO: Your code here!
+		
+		// 1. items should have at least one keyword in the query parameter in their title, 
+		// category, or description fields
+		// 2. items should be located within the rectangular region specified
+		
+		SearchResult[] basicQueryResult = basicSearch(query, 0, numResultsToReturn);
+		ArrayList<SearchResult> spatialResults = new ArrayList<SearchResult>();
+		Connection con = null;
+		int start = 0;
+		int added = 0;
+		int skipped = 0;
+		
+		
+		try {
+    	    conn = DbManager.getConnection(true);
+			Statement stmt = con.createStatement();
+			
+			String rectangle = getPolygon(region.getLx(), region.getLy(), region.getRx(), region.getRy());
+			
+			PreparedStatement prepareIncludedRegion = con.prepareStatement("SELECT MBRContains(GeomFromText(" + rectangle + "), lat_long) AS inRange FROM Location WHERE item_id = ?");
+			
+			while(added < numResultsToReturn && basicQueryResult.length > 0){
+				for(int i = 0; i < basicQueryResult.length; i++){
+					prepareIncludedRegion.setInt(1, basicQueryResult[i].getItemId());
+					ResultSet rs = prepareIncludedRegion.executeQuery();
+					if (rs.next() && rs.getBoolean("inRange") {
+						SearchResult r = new SearchResult(rs.getString("item_id"), rs.getString("name"));
+						if(added < numResultsToReturn){
+							if(skipped < numResultsToSkip)
+								skipped++;
+							else{
+								spatialResults.add(r);
+								added++;
+							}
+						}
+						else 
+							break;
+					}
+				}
+				//run through basic query again to get more results
+				if(added < numResultsToReturn){
+					start += numResultsToReturn;
+					basicQueryResult = basicSearch(query, start, start+numResultsToReturn);
+				}
+			}
+			//close all connections
+			rs.close();
+			con.close();
+			
+			SearchResult[] results = new SearchResult[added];
+			
+			for(int j = 0; j < added; j++){
+				results[i] = spatialResults.get(i);
+			}
+			
+			return results;
+			
+    	} catch (SQLException ex) {
+    	    System.out.println(ex);
+    	}
+		
+		//if there are no hits
 		return new SearchResult[0];
 	}
 
@@ -95,5 +157,11 @@ public class AuctionSearch implements IAuctionSearch {
 	public String echo(String message) {
 		return message;
 	}
+	
+	private String getPolygon(double lx, double ly, double rx, double ry){
+		return "'POLYGON((" + lx + " " + ly + ", " + lx + " " + ry + ", " + rx + " "  + ry + ", " + rx + " " + ly + ", " + lx + " " + ly + "))'";
+	}
+	
+	
 
 }
