@@ -90,6 +90,7 @@ public class AuctionSearch implements IAuctionSearch {
 		// category, or description fields
 		// 2. items should be located within the rectangular region specified
 		
+		
 		SearchResult[] basicQueryResult = basicSearch(query, 0, numResultsToReturn);
 		ArrayList<SearchResult> spatialResults = new ArrayList<SearchResult>();
 		Connection conn = null;
@@ -112,8 +113,9 @@ public class AuctionSearch implements IAuctionSearch {
 					ResultSet rs = prepareIncludedRegion.executeQuery();
 					if (rs.next() && rs.getBoolean("inRange")) {
 						if(added < numResultsToReturn){
-							if(skipped < numResultsToSkip)
+							if(skipped < numResultsToSkip){
 								skipped++;
+							}
 							else{
 								spatialResults.add(basicQueryResult[i]);
 								added++;
@@ -127,7 +129,7 @@ public class AuctionSearch implements IAuctionSearch {
 				//run through basic query again to get more results
 				if(added < numResultsToReturn){
 					start += numResultsToReturn;
-					basicQueryResult = basicSearch(query, start, start+numResultsToReturn);
+					basicQueryResult = basicSearch(query, start, numResultsToReturn);
 				}
 			}
 			//close all connections

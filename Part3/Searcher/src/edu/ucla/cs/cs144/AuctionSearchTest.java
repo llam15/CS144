@@ -35,6 +35,12 @@ public class AuctionSearchTest {
 		// 	System.out.println(result.getItemId() + ": " + result.getName());
 		// }
 		
+		
+		query = "camera";
+		basicResults = as.basicSearch(query, 0, 9999);
+		System.out.println("Basic Search Query: " + query);
+		System.out.println("Received " + basicResults.length + " results");
+		
 		SearchRegion region =
 		    new SearchRegion(33.774, -118.63, 34.201, -117.38); 
 		SearchResult[] spatialResults = as.spatialSearch("camera", region, 0, 20);
