@@ -20,8 +20,7 @@ public class SearchServlet extends HttpServlet implements Servlet {
         int page = 0;
 
         // Set page title
-        String pageTitle = "eBay Search";
-        request.setAttribute("title", pageTitle);
+        request.setAttribute("title", "eBay Search");
 
         // Parse parameters
         Enumeration paramNames = request.getParameterNames();
