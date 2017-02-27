@@ -1,17 +1,30 @@
-<%@ page import="java.util.*" %>
 <%@ taglib prefix="x" uri="http://java.sun.com/jsp/jstl/xml" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
     String itemID = (String) request.getParameter("id");
     String itemXML = (String) request.getAttribute("itemXML");
+    String latitude = "";
+    String longitude = "";
 %>
 <html>
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" /> 
     <head>
         <title><%= request.getAttribute("title") %></title>
-        <style>
+        <style type="text/css">
+            html {
+                height: 100%;
+            }
+
+            body {
+                height: 100%;
+                margin: 0px;
+                padding: 10px;
+            }
+
             table {
                 border-collapse: collapse;
                 margin: 20px 0;
+                width: 80%;
             }
 
             th, td {
@@ -34,9 +47,14 @@
                 background-color: #eef;
             }
 
+            #map_canvas {
+                height: 60%;
+                width: 80%;
+                margin-bottom: 10px;
+            }
         </style>
     </head>
-    <body onload="initialize()"> 
+    <body>
 		<div>
         <a href="/eBay">Home</a>
 
@@ -94,8 +112,20 @@
                     <td>Location</td>
                     <td>
                         <x:out select="$output/Item/Location" />
-                        <x:if select="$output/Item/Location/@Latitude">
-                            (<x:out select="$output/Item/Location/@Latitude" />, <x:out select="$output/Item/Location/@Longitude" />)
+                        <x:if select="$output/Item/Location/@Latitude" >
+                            <x:if select="$output/Item/Location/@Longitude">
+                                <c:set var="latitude">
+                                    <x:out select="$output/Item/Location/@Latitude"/>
+                                </c:set>
+                                <c:set var="longitude">
+                                    <x:out select="$output/Item/Location/@Longitude"/>
+                                </c:set>
+                                <%
+                                    latitude = (String) pageContext.getAttribute("latitude");
+                                    longitude= (String) pageContext.getAttribute("longitude");
+                                %>
+                                (<x:out select="$output/Item/Location/@Latitude" />, <x:out select="$output/Item/Location/@Longitude" />)
+                            </x:if>
                         </x:if>
                     </td>
                 </tr>
@@ -175,33 +205,41 @@
         <% } else { %>
             <h2>Invalid id: <%= itemID %></h2>
         <% } %>
-		</div>
-		
-		<!-- Google Maps -->
-		<div id="map_canvas" style="width:100%; height:100%">
-			<style type="text/css"> 
-			  html { height: 100% } 
-			  body { height: 100%; margin: 0px; padding: 0px } 
-			  #map_canvas { height: 100% } 
-			</style> 
-			<script type="text/javascript" 
-				src="http://maps.google.com/maps/api/js?sensor=false"> 
-			</script> 
-			<script type="text/javascript"> 
-			  function initialize() { 
-			  
-				var latlng = new google.maps.LatLng(34.063509,-118.44541); 
-				var myOptions = { 
-				  zoom: 14, // default is 8  
-				  center: latlng, 
-				  mapTypeId: google.maps.MapTypeId.ROADMAP 
-				}; 
-				var map = new google.maps.Map(document.getElementById("map_canvas"), 
-					myOptions); 
-			  } 
+        </div>
 
-			</script> 
-		</div>
-		
+        <!-- Google Maps -->
+        <div id="map_canvas"></div>
+
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+        <script type="text/javascript">
+            document.body.onload = function() {
+                var lat, lng, zoomValue;
+                // Set the latitude and longitude if it exists
+                <% if ((latitude != "") && (longitude != "")) { %>
+                    lat = <%= latitude %>;
+                    lng = <%= longitude %>;
+                    zoomValue = 14;
+                <% } else { %>
+                    lat = 0;
+                    lng = 0;
+                    zoomValue = 1; // Show the whole world
+                <% } %>
+                var latlng = new google.maps.LatLng(lat, lng);
+                var myOptions = {
+                    zoom: zoomValue, // default is 8
+                    center: latlng,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+                // Add marker if latitude and longitude are given.
+                if (lat != 0 && lng != 0) {
+                    var marker = new google.maps.Marker({
+                        position: latlng,
+                        map: map
+                    });
+                }
+            }
+        </script>
     </body>
 </html>
