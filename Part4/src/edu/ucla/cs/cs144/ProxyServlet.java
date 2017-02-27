@@ -32,23 +32,25 @@ public class ProxyServlet extends HttpServlet implements Servlet {
 		
 		String queryValue = (String) request.getParameter("q");
 		
-		//open connection & send a GET request
-		URL url = new URL("http://google.com/complete/search?output=toolbar&q=" + queryValue);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		
-		// read returned XML data
-		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		String inputLine;
-		StringBuffer xmlOutput = new StringBuffer();
+		if (queryValue != null && queryValue != "") {
+			//open connection & send a GET request
+			URL url = new URL("http://google.com/complete/search?output=toolbar&q=" + queryValue);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			
+			// read returned XML data
+			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			String inputLine;
+			StringBuffer xmlOutput = new StringBuffer();
 
-		while ((inputLine = in.readLine()) != null) {
-			xmlOutput.append(inputLine);
+			while ((inputLine = in.readLine()) != null) {
+				xmlOutput.append(inputLine);
+			}
+			in.close();
+			
+			// print XML to page
+			pw.println(xmlOutput);
 		}
-		in.close();
-		
-		// print XML to page
-		pw.println(xmlOutput);
 		pw.close();
 		
 		response.setContentType("text/xml");
