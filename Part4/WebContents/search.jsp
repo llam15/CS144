@@ -15,21 +15,12 @@
         <br>
         <form action="/eBay/search">
             Search Items:<br>
-            <input type="text" name="s" value="<%= searchParamString %>">
+            <input id="search-input" type="text" name="s"
+                   value="<%= searchParamString %>"
+                   onkeyup="sendAjaxRequest(this.value)" autocomplete="off">
             <input type="submit" value="Search">
         </form>
-		
-		<script>
-			var xhttp = new XMLHttpRequest();
-			xhttp.onreadystatechange = function() {
-				if (this.readyState == 4 && this.status == 200) {
-					
-					console.log(xhttp.responseText);
-				}
-			};
-			xhttp.open("GET", "http://localhost:1448/eBay/suggest", true);
-			xhttp.send();
-		</script>
+		<div id="suggestions"></div>
 
         <% if (results != null) { %>
             <% if (results.length > 0) { %>
@@ -65,5 +56,33 @@
                 <a disabled>Next 20 Results</a>
             <% } %>
         <% } %>
+
+        <script type="text/javascript">
+            function sendAjaxRequest(input) {
+                var request = "/eBay/suggest?q="+encodeURI(input);
+                var xmlHttp = new XMLHttpRequest();
+
+                xmlHttp.open("GET", request);
+                xmlHttp.onreadystatechange = function() {
+                    if (xmlHttp.readyState == 4 && xmlHttp.responseXML != null) {
+                        // get the CompleteSuggestion elements from the response
+                        var s = xmlHttp.responseXML.getElementsByTagName('CompleteSuggestion');
+
+                        // construct a bullet list from the suggestions
+                        var htmlCode = "<ul>";
+                        for (i = 0; i < s.length; i++) {
+                           var text = s[i].childNodes[0].getAttribute("data");
+
+                           htmlCode += "<li><b>" + text + "</b></li>";
+                        }
+                        htmlCode += "</ul>";
+
+                        // display the list on the page
+                        document.getElementById("suggestions").innerHTML = htmlCode;
+                    }
+                };
+                xmlHttp.send(null);
+            }
+        </script>
     </body>
 </html>
