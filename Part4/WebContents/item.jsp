@@ -7,6 +7,33 @@
 <html>
     <head>
         <title><%= request.getAttribute("title") %></title>
+        <style>
+            table {
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+
+            th, td {
+                padding: 8px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                border-top: 1px solid #ddd;
+            }
+
+            #item-table td:nth-child(1) {
+                font-weight: bold;
+                background-color: #eee;
+            }
+
+            #bid-table th {
+                background-color: #eee;
+            }
+
+            #bid-table tr:nth-child(odd) {
+                background-color: #eef;
+            }
+
+        </style>
     </head>
     <body>
         <a href="/eBay">Home</a>
@@ -14,9 +41,10 @@
         <% if (itemXML != null && itemXML != "") { %>
             <x:parse xml="${itemXML}" var="output"/>
 
-            <table>
+            <!-- Item Information -->
+            <table id="item-table">
                 <tr>
-                    <td>Item ID</td>
+                    <td >Item ID</td>
                     <td><%= itemID %></td>
                 </tr>
                 <tr>
@@ -65,7 +93,7 @@
                     <td>
                         <x:out select="$output/Item/Location" />
                         <x:if select="$output/Item/Location/@Latitude">
-                            (<x:out select="$output/Item/Location/@Latitude/" />, <x:out select="$output/Item/Location/@Longitude/" />)
+                            (<x:out select="$output/Item/Location/@Latitude" />, <x:out select="$output/Item/Location/@Longitude" />)
                         </x:if>
                     </td>
                 </tr>
@@ -90,7 +118,7 @@
                 <tr>
                     <td>Seller</td>
                     <td>
-                        <x:out select="$output/Item/Seller/@UserID" /> (<x:out select="$output/Item/Seller/@Rating" />)
+                        <x:out select="$output/Item/Seller/@UserID" /> (Rating: <x:out select="$output/Item/Seller/@Rating" />)
                     </td>
                 </tr>
                 <tr>
@@ -100,9 +128,48 @@
                     </td>
                 </tr>
             </table>
+
+            <!-- Bids -->
+            <x:if select="$output/Item/Number_of_Bids != 0">
+                <table id="bid-table">
+                    <tr>
+                        <th>Bidder</th>
+                        <th>Bidder Location</th>
+                        <th>Time</th>
+                        <th>Amount</th>
+                    </tr>
+                    <x:forEach select="$output/Item/Bids/Bid" var="bid">
+                        <tr>
+                            <td>
+                                <x:out select="$bid/Bidder/@UserID" /> (Rating: <x:out select="$bid/Bidder/@Rating" />)
+                            </td>
+                            <td>
+                                <x:choose>
+                                    <x:when select="$bid/Bidder/Location">
+                                        <x:out select="$bid/Bidder/Location" />
+                                    </x:when>
+                                    <x:otherwise>Location: N/A</x:otherwise>
+                                </x:choose>
+                                <br>
+                                <x:choose>
+                                    <x:when select="$bid/Bidder/Country">
+                                        <x:out select="$bid/Bidder/Country" />
+                                    </x:when>
+                                    <x:otherwise>Country: N/A</x:otherwise>
+                                </x:choose>
+                            </td>
+                            <td>
+                                <x:out select="$bid/Time" />
+                            </td>
+                            <td>
+                                <x:out select="$bid/Amount" />
+                            </td>
+                        </tr>
+                    </x:forEach>
+                </table>
+            </x:if>
         <% } else { %>
             <h2>Invalid id: <%= itemID %></h2>
         <% } %>
-        <!-- TODO: Add Table for bids -->
     </body>
 </html>
