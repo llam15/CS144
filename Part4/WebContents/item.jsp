@@ -5,6 +5,7 @@
     String itemXML = (String) request.getAttribute("itemXML");
 %>
 <html>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" /> 
     <head>
         <title><%= request.getAttribute("title") %></title>
         <style>
@@ -35,7 +36,8 @@
 
         </style>
     </head>
-    <body>
+    <body onload="initialize()"> 
+		<div>
         <a href="/eBay">Home</a>
 
         <% if (itemXML != null && itemXML != "") { %>
@@ -128,8 +130,10 @@
                     </td>
                 </tr>
             </table>
+		</div>
 
             <!-- Bids -->
+		<div>
             <x:if select="$output/Item/Number_of_Bids != 0">
                 <table id="bid-table">
                     <tr>
@@ -171,5 +175,33 @@
         <% } else { %>
             <h2>Invalid id: <%= itemID %></h2>
         <% } %>
+		</div>
+		
+		<!-- Google Maps -->
+		<div id="map_canvas" style="width:100%; height:100%">
+			<style type="text/css"> 
+			  html { height: 100% } 
+			  body { height: 100%; margin: 0px; padding: 0px } 
+			  #map_canvas { height: 100% } 
+			</style> 
+			<script type="text/javascript" 
+				src="http://maps.google.com/maps/api/js?sensor=false"> 
+			</script> 
+			<script type="text/javascript"> 
+			  function initialize() { 
+			  
+				var latlng = new google.maps.LatLng(34.063509,-118.44541); 
+				var myOptions = { 
+				  zoom: 14, // default is 8  
+				  center: latlng, 
+				  mapTypeId: google.maps.MapTypeId.ROADMAP 
+				}; 
+				var map = new google.maps.Map(document.getElementById("map_canvas"), 
+					myOptions); 
+			  } 
+
+			</script> 
+		</div>
+		
     </body>
 </html>
