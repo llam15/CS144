@@ -78,7 +78,8 @@
                         htmlCode += "</ul>";
 
                         // display the list on the page
-                        document.getElementById("suggestion").innerHTML = htmlCode;
+
+                        document.getElementById("suggestions").innerHTML = htmlCode;
                     }
                 };
                 xmlHttp.send(null);
