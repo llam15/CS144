@@ -17,7 +17,7 @@
                 var oTextbox = new AutoSuggestControl(document.getElementById("search-input"), oServerSuggestions);        
             }
         </script>
-		<link rel="stylesheet" type="text/css" href="autosuggest.css" />      
+		<link rel="stylesheet" type="text/css" href="autosuggest1.css" />      
     </head>
     <body>
         <a href="/eBay">Home</a>

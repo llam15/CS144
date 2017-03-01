@@ -223,7 +223,6 @@ AutoSuggestControl.prototype.init = function () {
         }    
         
         //call the handleKeyUp() method with the event object
-		console.log("key up");
         oThis.handleKeyUp(oEvent);
     };
     
@@ -236,13 +235,11 @@ AutoSuggestControl.prototype.init = function () {
         }    
         
         //call the handleKeyDown() method with the event object
-		console.log("key down");
         oThis.handleKeyDown(oEvent);
     };
     
     //assign onblur event handler (hides suggestions)    
     this.textbox.onblur = function () {
-		console.log("onblur hide");
         oThis.hideSuggestions();
     };
     
