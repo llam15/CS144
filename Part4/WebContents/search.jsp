@@ -9,18 +9,24 @@
 <html>
     <head>
         <title><%= request.getAttribute("title") %></title>
+		<script type="text/javascript" src="suggestionresults.js"></script>
+		<script type="text/javascript" src="autosuggest.js"></script>
+		<script type="text/javascript">
+            window.onload = function () {
+				oServerSuggestions = new ServerSuggestions();
+                var oTextbox = new AutoSuggestControl(document.getElementById("search-input"), oServerSuggestions);        
+            }
+        </script>
+		<link rel="stylesheet" type="text/css" href="autosuggest.css" />      
     </head>
     <body>
         <a href="/eBay">Home</a>
         <br>
         <form action="/eBay/search">
             Search Items:<br>
-            <input id="search-input" type="text" name="s"
-                   value="<%= searchParamString %>"
-                   onkeyup="sendAjaxRequest(this.value)" autocomplete="off">
+            <input id="search-input" type="text" name="s" autocomplete="off">
             <input type="submit" value="Search">
         </form>
-		<div id="suggestions"></div>
 
         <% if (results != null) { %>
             <% if (results.length > 0) { %>
@@ -57,33 +63,6 @@
             <% } %>
         <% } %>
 
-        <script type="text/javascript">
-            function sendAjaxRequest(input) {
-                var request = "/eBay/suggest?q="+encodeURI(input);
-                var xmlHttp = new XMLHttpRequest();
-
-                xmlHttp.open("GET", request);
-                xmlHttp.onreadystatechange = function() {
-                    if (xmlHttp.readyState == 4 && xmlHttp.responseXML != null) {
-                        // get the CompleteSuggestion elements from the response
-                        var s = xmlHttp.responseXML.getElementsByTagName('CompleteSuggestion');
-
-                        // construct a bullet list from the suggestions
-                        var htmlCode = "<ul>";
-                        for (i = 0; i < s.length; i++) {
-                           var text = s[i].childNodes[0].getAttribute("data");
-
-                           htmlCode += "<li><b>" + text + "</b></li>";
-                        }
-                        htmlCode += "</ul>";
-
-                        // display the list on the page
-
-                        document.getElementById("suggestions").innerHTML = htmlCode;
-                    }
-                };
-                xmlHttp.send(null);
-            }
-        </script>
-    </body>
+  
+	</body>
 </html>
