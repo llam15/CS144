@@ -11,6 +11,7 @@ import java.util.Enumeration;
 import java.io.PrintWriter;
 
 import java.net.URL;
+import java.net.URLEncoder;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
@@ -34,10 +35,10 @@ public class ProxyServlet extends HttpServlet implements Servlet {
 		
 		if (queryValue != null && queryValue != "") {
 			//open connection & send a GET request
-			URL url = new URL("http://google.com/complete/search?output=toolbar&q=" + queryValue);
+			URL url = new URL("http://google.com/complete/search?output=toolbar&q=" + URLEncoder.encode(queryValue, "UTF-8"));
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
-			
+
 			// read returned XML data
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			String inputLine;
