@@ -1,0 +1,1 @@
+JSTL XML tags were used in the .jsp files. Intenet access is needed to load the appropriate tag library from http://java.sun.com/jsp/jstl/xml. Source code from the provided tutorial link (from webreference.com) of creating an Autosuggest TextBox with JavaScript was used and modified to fit the needs of this project.
