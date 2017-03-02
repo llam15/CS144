@@ -9,15 +9,7 @@
 <html>
     <head>
         <title><%= request.getAttribute("title") %></title>
-		<script type="text/javascript" src="suggestionresults.js"></script>
-		<script type="text/javascript" src="autosuggest.js"></script>
-		<script type="text/javascript">
-            window.onload = function () {
-				oServerSuggestions = new ServerSuggestions();
-                var oTextbox = new AutoSuggestControl(document.getElementById("search-input"), oServerSuggestions);        
-            }
-        </script>
-		<link rel="stylesheet" type="text/css" href="autosuggest1.css" />      
+		<link rel="stylesheet" type="text/css" href="autosuggest.css" />
     </head>
     <body>
         <a href="/eBay">Home</a>
@@ -63,6 +55,15 @@
             <% } %>
         <% } %>
 
-  
+        <script type="text/javascript" src="suggestionresults.js"></script>
+        <script type="text/javascript" src="autosuggest.js"></script>
+        <script type="text/javascript">
+            window.onload = function () {
+                var searchInput = document.getElementById("search-input");
+                searchInput.value = "<%= searchParamString %>";
+                oServerSuggestions = new ServerSuggestions();
+                var oTextbox = new AutoSuggestControl(searchInput, oServerSuggestions);
+            }
+        </script>
 	</body>
 </html>

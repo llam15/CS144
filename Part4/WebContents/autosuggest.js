@@ -48,11 +48,6 @@ AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/,
     
     //make sure there's at least one suggestion
     if (aSuggestions.length > 0) {
-        if (bTypeAhead) {
-			console.log("type ahead");
-           this.typeAhead(aSuggestions[0]);
-        }
-        
         this.showSuggestions(aSuggestions);
     } else {
         this.hideSuggestions();
@@ -64,8 +59,7 @@ AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/,
  * @scope private
  */
 AutoSuggestControl.prototype.createDropDown = function () {
-	
-	console.log("create dropdown");
+
     var oThis = this;
 
     //create the layer and assign styles
@@ -85,14 +79,14 @@ AutoSuggestControl.prototype.createDropDown = function () {
         if (oEvent.type == "mousedown") {
             oThis.textbox.value = oTarget.firstChild.nodeValue;
             oThis.hideSuggestions();
+            oThis.textbox.form.submit();
         } else if (oEvent.type == "mouseover") {
             oThis.highlightSuggestion(oTarget);
         } else {
             oThis.textbox.focus();
         }
     };
-    
-    
+
     document.body.appendChild(this.layer);
 };
 
@@ -162,20 +156,13 @@ AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
 
     var iKeyCode = oEvent.keyCode;
 
-    //for backspace (8) and delete (46), shows suggestions without typeahead
-    if (iKeyCode == 8 || iKeyCode == 46) {
-		console.log("BS or DEL pressed");
-		console.log("get suggestion for " + this.textbox.value);
-		this.provider.sendAjaxRequest(this, false, this.textbox.value);
-        
-    //make sure not to interfere with non-character keys
-    } else if (iKeyCode < 32 || (iKeyCode >= 33 && iKeyCode < 46) || (iKeyCode >= 123)) {
+    if (iKeyCode < 32 || (iKeyCode >= 33 && iKeyCode < 46) || (iKeyCode >= 123)) {
         //ignore
 		console.log("stroke ignored");
     } else {
         //request suggestions from the suggestion provider with typeahead
 		console.log("get suggestion for --> " + this.textbox.value);
-		this.provider.sendAjaxRequest(this, true, this.textbox.value);
+		this.provider.sendAjaxRequest(this, false, this.textbox.value);
     }
 };
 
@@ -309,7 +296,6 @@ AutoSuggestControl.prototype.selectRange = function (iStart /*:int*/, iLength /*
  */
 AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/) {
     
-	console.log("show suggestions plzzz");
     var oDiv = null;
     this.layer.innerHTML = "";  //clear contents of the layer
     
@@ -324,21 +310,3 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
     this.layer.style.visibility = "visible";
 
 };
-
-/**
- * Inserts a suggestion into the textbox, highlighting the 
- * suggested part of the text.
- * @scope private
- * @param sSuggestion The suggestion for the textbox.
- */
-AutoSuggestControl.prototype.typeAhead = function (sSuggestion /*:String*/) {
-
-    //check for support of typeahead functionality
-	console.log("type ahead");
-    if (this.textbox.createTextRange || this.textbox.setSelectionRange){
-        var iLen = this.textbox.value.length; 
-        this.textbox.value = sSuggestion; 
-        this.selectRange(iLen, sSuggestion.length);
-    }
-};
-
