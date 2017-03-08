@@ -13,3 +13,6 @@ hs_err_pid*
 
 # Zip Files
 *.zip
+
+# Build folder for Part 4
+Part4/build/
