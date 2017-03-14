@@ -7,11 +7,11 @@ val userMap = rawData.map(x => x.split(": "))
 // Get all users
 val users = userMap.flatMap(x => x(1).split(","))
 
-// Top 100 users with largest follower counts
-val followerCount = users.map(user => (user, 1)).reduceByKey(_+_).takeOrdered(100)(Ordering[Int].reverse.on(x => x._2.toInt))
+// save top users that have > 1000 followers to an array
+val topUsers = users.map(user => (user, 1)).reduceByKey(_+_).filter(x => x._2.toInt > 1000)
 
-// Convert Array back to RDD to use saveAsTextFile
-sc.parallelize(followerCount).saveAsTextFile("output")
+//print topUsers to output
+topUsers.saveAsTextFile("output")
 
 // Exit interpreter
 System.exit(0)
